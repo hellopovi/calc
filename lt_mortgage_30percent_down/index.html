@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LT Mortgage Predictor</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #1e8e3e; --error: #d93025; --bg: #f8f9fa; --gold: #b45309; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 450px; }
+    h2 { font-size: 18px; color: var(--primary); margin: 0 0 15px 0; text-align: center; }
+    .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 12px; border: 1px solid #e0e0e0; }
+    label { font-size: 11px; font-weight: 700; color: #5f6368; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    select, input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; -webkit-appearance: none; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full { grid-column: span 2; }
+    .rate-banner { background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px solid #bfdbfe; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .rate-val { font-weight: 800; color: var(--primary); font-size: 18px; }
+    .toggle { display: flex; background: #f3f4f6; padding: 4px; border-radius: 8px; margin-bottom: 12px; }
+    .toggle button { flex: 1; border: none; background: none; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: #4b5563; }
+    .toggle button.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .res-box { padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    .bg-blue { background: #1a73e8; color: white; }
+    .bg-gold { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+    .item { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+    .item:last-child { margin-bottom: 0; }
+    .big-val { font-weight: 800; font-size: 18px; }
+    .hint { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Mortgage Predictor LT</h2>
+    
+    <div class="card">
+      <label>Bank Margin</label>
+      <select id="bankSelect">
+        <option value="swed">Swedbank (1.40%)</option>
+        <option value="seb">SEB (1.45%)</option>
+        <option value="big">BigBank (1.80%)</option>
+        <option value="citadele" selected>Citadele (1.85%)</option>
+      </select>
+      
+      <label style="margin-top:12px;">Euribor Period</label>
+      <div class="toggle">
+        <button id="btn3m" class="active">3 Months</button>
+        <button id="btn6m">6 Months</button>
+      </div>
+
+      <div class="rate-banner">
+        <span style="font-size:13px; font-weight:600;">Total Rate:</span>
+        <span class="rate-val" id="totalRateDisp">--</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div class="full">
+          <label>Apartment Price (€)</label>
+          <input type="number" id="price" value="200000" inputmode="numeric">
+        </div>
+        <div>
+          <label>Downpayment %</label>
+          <input type="number" id="downPercent" value="30" inputmode="numeric">
+        </div>
+        <div>
+          <label>Term (Years)</label>
+          <input type="number" id="years" value="28" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+
+    <div class="res-box bg-blue">
+      <div class="item"><span>Loan Amount:</span> <span class="big-val" id="resLoan"></span></div>
+      <div class="item"><span>Monthly Payment:</span> <span class="big-val" id="resMonthly"></span></div>
+    </div>
+
+    <div class="res-box bg-gold">
+      <label style="color: var(--gold); margin-bottom: 8px;">10-Year Growth Forecast</label>
+      <div class="item">
+        <span>Est. Value (2036):</span> <span class="big-val" id="resFutureVal"></span>
+      </div>
+      <div class="item" style="font-size:12px; margin-top:4px; opacity:0.9;">
+        <span>Projected Profit:</span> <span id="resProfit" style="font-weight:700;"></span>
+      </div>
+    </div>
+    
+    <p class="hint">Euribor updated: April 2026 (3m: 2.16% | 6m: 2.42%)</p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
