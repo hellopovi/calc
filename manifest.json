@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "LT Mortgage Live 30% Down",
+  "version": "1.6",
+  "description": "Live mortgage calculator with 200k price and 30% downpayment.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": []
+}
