@@ -1,30 +1,31 @@
 
-let liveRates = { "3m": 3.12, "6m": 3.05 }; 
+const liveEuribor = { "3m": 2.165, "6m": 2.427 };
 let activeType = "3m";
 
-const bankData = {
-  swed: { margin: 1.4, years: 30, max: 145000 },
-  seb: { margin: 1.45, years: 20, max: 110000 },
-  big: { margin: 1.8, years: 30, max: 150000 },
-  citadele: { margin: 1.85, years: 28, max: 165000 }
+const bankMargins = {
+  swed: 1.40,
+  seb: 1.45,
+  big: 1.80,
+  citadele: 1.85
 };
 
-function formatEuro(val) {
-  return new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
-}
-function formatEuroPrecise(val) {
-  return new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR' }).format(val);
+function formatEuro(val, decimals = 0) {
+  return new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR', maximumFractionDigits: decimals }).format(val);
 }
 
 function calculate() {
   const price = parseFloat(document.getElementById('price').value) || 0;
-  const annualRate = parseFloat(document.getElementById('interest').value) / 100 || 0;
-  const years = parseInt(document.getElementById('years').value) || 0;
   const downPercent = parseFloat(document.getElementById('downPercent').value) || 0;
+  const years = parseInt(document.getElementById('years').value) || 0;
+  
+  const margin = bankMargins[document.getElementById('bankSelect').value];
+  const totalRate = margin + liveEuribor[activeType];
+  
+  document.getElementById('totalRateDisp').innerText = totalRate.toFixed(3) + '%';
 
   const downpayment = price * (downPercent / 100);
   const principal = price - downpayment;
-  const monthlyRate = annualRate / 12;
+  const monthlyRate = (totalRate / 100) / 12;
   const totalPayments = years * 12;
 
   let monthly = 0;
@@ -32,54 +33,34 @@ function calculate() {
     const x = Math.pow(1 + monthlyRate, totalPayments);
     monthly = (principal * x * monthlyRate) / (x - 1);
   }
-  
-  const totalPaid = (monthly * totalPayments) + downpayment;
-  const totalInterest = totalPaid - price;
-  const estMonthlyRent = (price * 0.055) / 12;
 
-  // Display
+  // 10-year appreciation at 4.5% (Compounded)
+  const futureVal = price * Math.pow(1 + 0.045, 10);
+  const profit = futureVal - price;
+
   document.getElementById('resLoan').innerText = formatEuro(principal);
-  document.getElementById('resMonthly').innerText = formatEuroPrecise(monthly);
-  document.getElementById('resDown').innerText = formatEuro(downpayment);
-  document.getElementById('resTotalInterest').innerText = formatEuro(totalInterest);
-  document.getElementById('resTotalCost').innerText = formatEuro(totalPaid);
-
-  const compBox = document.getElementById('comparison');
-  const diff = monthly - estMonthlyRent;
-  if (diff > 0) {
-    compBox.innerText = `Mortgage is ${formatEuro(diff)} more than estimated rent`;
-    compBox.style.color = "#d93025";
-  } else {
-    compBox.innerText = `Mortgage is ${formatEuro(Math.abs(diff))} cheaper than rent!`;
-    compBox.style.color = "#1e8e3e";
-  }
-
-  const bankKey = document.getElementById('bankSelect').value;
-  const warnDiv = document.getElementById('bankWarning');
-  if (bankKey !== 'custom' && principal > bankData[bankKey].max) {
-    warnDiv.innerText = `⚠️ Loan exceeds ${bankKey.toUpperCase()} limit of ${formatEuro(bankData[bankKey].max)}`;
-    warnDiv.style.display = 'block';
-  } else {
-    warnDiv.style.display = 'none';
-  }
+  document.getElementById('resMonthly').innerText = formatEuro(monthly, 2);
+  document.getElementById('resFutureVal').innerText = formatEuro(futureVal);
+  document.getElementById('resProfit').innerText = '+' + formatEuro(profit);
 }
 
-function updateInterestField() {
-  const bankKey = document.getElementById('bankSelect').value;
-  const margin = bankKey !== 'custom' ? bankData[bankKey].margin : 1.5;
-  const total = margin + liveRates[activeType];
-  document.getElementById('interest').value = total.toFixed(3);
+document.getElementById('btn3m').addEventListener('click', () => {
+  activeType = "3m";
+  document.getElementById('btn3m').classList.add('active');
+  document.getElementById('btn6m').classList.remove('active');
   calculate();
-}
+});
 
-['price', 'years', 'interest', 'downPercent'].forEach(id => {
+document.getElementById('btn6m').addEventListener('click', () => {
+  activeType = "6m";
+  document.getElementById('btn6m').classList.add('active');
+  document.getElementById('btn3m').classList.remove('active');
+  calculate();
+});
+
+document.getElementById('bankSelect').addEventListener('change', calculate);
+['price', 'years', 'downPercent'].forEach(id => {
   document.getElementById(id).addEventListener('input', calculate);
 });
 
-document.getElementById('bankSelect').addEventListener('change', (e) => {
-  const bank = bankData[e.target.value];
-  if (bank) document.getElementById('years').value = bank.years;
-  updateInterestField();
-});
-
-updateInterestField();
+calculate();

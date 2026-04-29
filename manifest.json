@@ -1,9 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "LT Mortgage & Rent Responsive",
-  "version": "1.7",
-  "description": "Responsive mortgage vs rent calculator.",
-  "action": {
-    "default_popup": "index.html"
-  }
+  "name": "LT Mortgage Predictor",
+  "version": "1.9",
+  "description": "Auto-EURIBOR (April 2026) and 10-year appreciation forecast.",
+  "action": { "default_popup": "index.html" }
 }
