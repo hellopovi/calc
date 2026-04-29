@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "LT Mortgage Live 30% Down",
-  "version": "1.6",
-  "description": "Live mortgage calculator with 200k price and 30% downpayment.",
+  "name": "LT Mortgage & Rent Responsive",
+  "version": "1.7",
+  "description": "Responsive mortgage vs rent calculator.",
   "action": {
-    "default_popup": "popup.html"
-  },
-  "permissions": []
+    "default_popup": "index.html"
+  }
 }

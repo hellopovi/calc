@@ -10,51 +10,54 @@ const bankData = {
 };
 
 function formatEuro(val) {
+  return new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
+}
+function formatEuroPrecise(val) {
   return new Intl.NumberFormat('lt-LT', { style: 'currency', currency: 'EUR' }).format(val);
 }
 
 function calculate() {
-  const price = parseFloat(document.getElementById('price').value);
-  const annualRate = parseFloat(document.getElementById('interest').value) / 100;
-  const years = parseInt(document.getElementById('years').value);
-  const downPercent = parseFloat(document.getElementById('downPercent').value);
-  
-  if (!price || price <= 0 || !years || years <= 0 || isNaN(downPercent)) {
-    return;
-  }
+  const price = parseFloat(document.getElementById('price').value) || 0;
+  const annualRate = parseFloat(document.getElementById('interest').value) / 100 || 0;
+  const years = parseInt(document.getElementById('years').value) || 0;
+  const downPercent = parseFloat(document.getElementById('downPercent').value) || 0;
 
   const downpayment = price * (downPercent / 100);
   const principal = price - downpayment;
   const monthlyRate = annualRate / 12;
   const totalPayments = years * 12;
 
-  const x = Math.pow(1 + monthlyRate, totalPayments);
-  const monthly = (principal * x * monthlyRate) / (x - 1);
+  let monthly = 0;
+  if (monthlyRate > 0 && totalPayments > 0) {
+    const x = Math.pow(1 + monthlyRate, totalPayments);
+    monthly = (principal * x * monthlyRate) / (x - 1);
+  }
   
   const totalPaid = (monthly * totalPayments) + downpayment;
   const totalInterest = totalPaid - price;
-
   const estMonthlyRent = (price * 0.055) / 12;
-  const rentDiff = monthly - estMonthlyRent;
 
-  document.getElementById('resMonthly').innerText = formatEuro(monthly);
+  // Display
+  document.getElementById('resLoan').innerText = formatEuro(principal);
+  document.getElementById('resMonthly').innerText = formatEuroPrecise(monthly);
+  document.getElementById('resDown').innerText = formatEuro(downpayment);
   document.getElementById('resTotalInterest').innerText = formatEuro(totalInterest);
   document.getElementById('resTotalCost').innerText = formatEuro(totalPaid);
-  document.getElementById('resDown').innerText = formatEuro(downpayment);
-  
+
   const compBox = document.getElementById('comparison');
-  if (rentDiff > 0) {
-    compBox.innerText = `Mortgage is ${formatEuro(rentDiff)} more than rent`;
+  const diff = monthly - estMonthlyRent;
+  if (diff > 0) {
+    compBox.innerText = `Mortgage is ${formatEuro(diff)} more than estimated rent`;
     compBox.style.color = "#d93025";
   } else {
-    compBox.innerText = `Mortgage is ${formatEuro(Math.abs(rentDiff))} cheaper than rent!`;
+    compBox.innerText = `Mortgage is ${formatEuro(Math.abs(diff))} cheaper than rent!`;
     compBox.style.color = "#1e8e3e";
   }
 
   const bankKey = document.getElementById('bankSelect').value;
   const warnDiv = document.getElementById('bankWarning');
   if (bankKey !== 'custom' && principal > bankData[bankKey].max) {
-    warnDiv.innerText = `⚠️ Loan exceeds limit of ${formatEuro(bankData[bankKey].max)}`;
+    warnDiv.innerText = `⚠️ Loan exceeds ${bankKey.toUpperCase()} limit of ${formatEuro(bankData[bankKey].max)}`;
     warnDiv.style.display = 'block';
   } else {
     warnDiv.style.display = 'none';
@@ -73,20 +76,6 @@ function updateInterestField() {
   document.getElementById(id).addEventListener('input', calculate);
 });
 
-document.getElementById('btn3m').addEventListener('click', () => {
-  activeType = "3m";
-  document.getElementById('btn3m').classList.add('active');
-  document.getElementById('btn6m').classList.remove('active');
-  updateInterestField();
-});
-
-document.getElementById('btn6m').addEventListener('click', () => {
-  activeType = "6m";
-  document.getElementById('btn6m').classList.add('active');
-  document.getElementById('btn3m').classList.remove('active');
-  updateInterestField();
-});
-
 document.getElementById('bankSelect').addEventListener('change', (e) => {
   const bank = bankData[e.target.value];
   if (bank) document.getElementById('years').value = bank.years;
@@ -94,4 +83,3 @@ document.getElementById('bankSelect').addEventListener('change', (e) => {
 });
 
 updateInterestField();
-calculate();
